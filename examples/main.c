@@ -1,7 +1,11 @@
 // main.cpp
 #include "modplus.h"
+#include "montgomery.h"
+
 #include <stdio.h>
 #include <stdint.h>
+
+//Little endian
 
 const uint256_t modulus = { .limb = { 
     0xffffffffffffffffULL,
@@ -24,11 +28,9 @@ const uint256_t B = { .limb = {
     0x5ac635d8aa3a93e7ULL
 } };
 
-MParams mp = {
-    .a = A,
-    .b = B,
-    .modulus = modulus
-};
+
+
+
 /*
 const uint64_t G[2][4] = {
     {0xf4a13945d898c296ULL, 0x77037d812deb33a0ULL, 0xf8bce6e563a440f2ULL, 0x6b17d1f2e12c4247ULL},
@@ -43,6 +45,30 @@ const uint64_t n[4] = {
 };
 */
 
+
+const uint256_t R2 = { .limb = {
+    0x0000000000000003,
+    0xfffffffbffffffff,
+    0xfffffffffffffffe,
+    0x00000004fffffffd
+} };
+
+const uint64_t p0_inv = 0x00000001;
+
+
+MParams mp = {
+    .a = A,
+    .b = B,
+    .modulus = modulus
+};
+
+montgomery_ctx_t montctx = {
+    .n = modulus,
+    .n_inv = p0_inv,
+    .r_squared = R2
+};
+
+
 void print_uint256_hex(const uint256_t *num) {
     // Print from most significant limb (3) to least (0)
     for (int i = 3; i >= 0; i--) {
@@ -51,7 +77,9 @@ void print_uint256_hex(const uint256_t *num) {
     printf("\n");
 }
 
+
 int main() {
+    
     printf("Testing secp256r1 modular arithmetic\n");
     uint256_t add_result = {0};
     mod_add(&mp, &add_result);
@@ -60,5 +88,14 @@ int main() {
     uint256_t sub_result = {0};
     mod_sub(&mp, &sub_result);
     print_uint256_hex(&sub_result);
+
+    uint256_t mul_result = {0};
+    //montgomery_ctx_init(&montctx, &modulus);
+    mod_mul(&mp, &montctx, &mul_result);
+    
+    print_uint256_hex(&mul_result);
+
+    
+
     return 0;
 }
