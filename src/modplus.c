@@ -43,8 +43,9 @@ void mod_div(MParams *mp, uint256_t *remainder, uint256_t *result) {
         fprintf(stderr, "Error: Subtraction by 0 is impossible.");
         return;
     }
-    memset(result->limb, 0, sizeof(result->limb));
-    memset(remainder->limb, 0, sizeof(remainder->limb));
+        
+    uint256_clear(result);
+    uint256_clear(remainder);
 
     for (int i = 255; i >= 0; i--) {
         uint256_lshift1(remainder);

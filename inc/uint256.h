@@ -24,6 +24,7 @@ int uint256_is_zero(const uint256_t *x);
 void uint256_rshift1(uint256_t *x);
 void uint256_lshift1(uint256_t *x);
 void uint256_swap(uint256_t *x, uint256_t *y);
+void uint256_clear(uint256_t *x);
 void uint256_copy(uint256_t *x, uint256_t *y);
 int uint256_cmp(const uint256_t *x, const uint256_t *y);
 int uint256_is_even(const uint256_t *x);

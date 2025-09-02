@@ -8,6 +8,7 @@
 #include "uint256.h"
 
 #include <stdio.h>
+#include <string.h>
 
 void uint256_rshift1(uint256_t *x) {
     uint64_t carry = 0;
@@ -32,6 +33,10 @@ void uint256_swap(uint256_t *x, uint256_t *y) {
     *x = *y;
     *y = temp;
 }   
+
+void uint256_clear(uint256_t *x) {
+    memset(x->limb, 0, sizeof(x->limb));
+}
 
 void uint256_copy(uint256_t *x, uint256_t *y) {
     for (int i = 0; i < 4; i++) {
