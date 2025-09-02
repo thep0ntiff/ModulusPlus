@@ -90,12 +90,25 @@ int main() {
     print_uint256_hex(&sub_result);
 
     uint256_t mul_result = {0};
-    //montgomery_ctx_init(&montctx, &modulus);
+    //montgomery_ctx_init(&montctx, &modulus);  
     mod_mul(&mp, &montctx, &mul_result);
-    
     print_uint256_hex(&mul_result);
-
     
+    uint256_t div_result, remainder;
+    mod_div(&mp, &remainder, &div_result);
+    printf("Div Result: ");
+    print_uint256_hex(&div_result);
+    printf("remainder: ");
+    print_uint256_hex(&remainder);
+
+
+    /*uint256_t inv_result = {0};
+    uint256_t a_mont;
+    to_montgomery(&montctx, &A, &a_mont);
+    mod_inv(&montctx, &a_mont, &inv_result);
+    print_uint256_hex(&inv_result); */
+
+
 
     return 0;
 }

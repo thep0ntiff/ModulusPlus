@@ -14,3 +14,10 @@ print(f"Subtraction Result: {result_sub:#x}")
 
 result_mul = (a * b) % p
 print(f"Mul result: {result_mul:#x}")
+
+q, r = divmod(a, b)
+print("Div result: ", hex(q))
+print("remainder: ", hex(r))
+
+result_inv = pow(a, -1, p)
+print(f"Inv Result: {result_inv:#x}")

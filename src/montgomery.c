@@ -10,40 +10,6 @@
 
 #include <stdio.h>
 
-static uint256_t gcd(uint256_t a, uint256_t b) {
-    //Stein's Algorithm
-    if (uint256_is_zero(&a)) return b;
-    if (uint256_is_zero(&b)) return a;
-    int k = 0;
-    while (((a.limb[0] & 0x1ULL) == 0) && (b.limb[0] & 0x1ULL) == 0) {
-        k++;
-        uint256_rshift1(&a);
-        uint256_rshift1(&b);
-    }
-    while (!uint256_is_zero(&a) && !uint256_is_zero(&b)) {
-        while((a.limb[0] & 0x1ULL) == 0) uint256_rshift1(&a);
-        while((b.limb[0] & 0x1ULL) == 0) uint256_rshift1(&b);
-        
-        if (uint256_cmp(&a, &b) == 1) {
-            uint256_swap(&a, &b); // To make sure b >= a
-        }
-        
-        if (uint256_sub(&b, &a, &b) > 0) {
-            fprintf(stderr, "Error: Subtraction underflowed in gcd().\nPlease check if you have submitted your numbers in the correct format.\n");
-            break;
-        }
-    }
-
-    uint256_t result = uint256_is_zero(&a) ? b : a;                                                                 
-
-    for (int i = 0; i < k; i++) {
-        uint256_lshift1(&result);
-    }
-
-    return result;
-
-}
-
 
 static void compute_r_squared(uint256_t *result, const uint256_t *modulus) {
     uint256_t r_squared = {0};
@@ -87,12 +53,6 @@ int montgomery_ctx_init(montgomery_ctx_t *ctx, const uint256_t *modulus) {
 }
 
 void montgomery_REDC(const montgomery_ctx_t *ctx, uint512_t *T, uint256_t *result) {
-    /*uint256_t one = {{1, 0, 0, 0}};
-    uint256_t __gcd = gcd(ctx->n, ctx->r_squared);
-    if (uint256_cmp(&one, &__gcd) == 0) {
-        fprintf(stderr, "Error: Your montgomery constants (N and R) are not coprime to each other");
-        return;
-    } */
 
     for (int i = 0; i < 4; i++) {
         uint64_t m = T->limb[i] * ctx->n_inv;
