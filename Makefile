@@ -1,31 +1,50 @@
 # Makefile for ModulusPlus project
 
-CC      := gcc
-CFLAGS  := -Wall -Wextra -O2 -Iinc
-LDFLAGS := 
+CC = gcc
+CFLAGS = -Wall -Wextra -O2 -Iinc -fPIC
 
-TARGET  := modulus_plus
+SRC = src/modplus.o src/montgomery.o src/uint256.o
+OBJ = examples/main.o
+TARGET = modulus_plus
+STATICLIB = libmodplus.a
+SHAREDLIB = libmodplus.so
+HEADER = inc/modplus.h
 
-# Source files
-SRCS    := examples/main.c src/modplus.c src/montgomery.c src/uint256.c
-# Object files (replace .c with .o)
-OBJS    := $(SRCS:.c=.o)
+PREFIX ?= /usr
+INCLUDEDIR = $(PREFIX)/include
+LIBDIR = $(PREFIX)/lib
+BINDIR = $(PREFIX)/bin
 
+.PHONY: all clean install uninstall
 
-all: $(TARGET)
+all: $(TARGET) $(STATICLIB) $(SHAREDLIB)
 
-# Link step
-$(TARGET): $(OBJS)
-	$(CC) $(CFLAGS) -o $@ $(OBJS) $(LDFLAGS)
+$(TARGET): $(OBJ) $(SRC)
+	$(CC) $(CFLAGS) -o $@ $^
 
-# Compile step (pattern rule for all .c → .o)
-%.o: %.c
+$(STATICLIB): $(SRC)
+	ar rcs $@ $^
+
+$(SHAREDLIB): $(SRC)
+	$(CC) -shared -o $@ $^
+
+examples/main.o: examples/main.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
-# Clean up
-clean:
-	rm -f $(OBJS) $(TARGET)
+src/%.o: src/%.c
+	$(CC) $(CFLAGS) -c $< -o $@
 
-# Optional: add a "run" target for convenience
-run: $(TARGET)
-	./$(TARGET)
+install: all
+	install -Dm755 $(TARGET) $(DESTDIR)$(BINDIR)/$(TARGET)
+	install -Dm644 $(STATICLIB) $(DESTDIR)$(LIBDIR)/$(STATICLIB)
+	install -Dm755 $(SHAREDLIB) $(DESTDIR)$(LIBDIR)/$(SHAREDLIB)
+	install -Dm644 $(HEADER) $(DESTDIR)$(INCLUDEDIR)/modplus.h
+
+uninstall:
+	rm -f $(DESTDIR)$(BINDIR)/$(TARGET)
+	rm -f $(DESTDIR)$(LIBDIR)/$(STATICLIB)
+	rm -f $(DESTDIR)$(LIBDIR)/$(SHAREDLIB)
+	rm -f $(DESTDIR)$(INCLUDEDIR)/modplus.h
+
+clean:
+	rm -f $(OBJ) $(SRC) $(TARGET) $(STATICLIB) $(SHAREDLIB)
