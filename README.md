@@ -69,7 +69,7 @@ typedef struct {
 - Make (optional, for build automation)
 
 ```bash
-make
+make install
 ```
 
 ## Usage Examples
