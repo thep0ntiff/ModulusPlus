@@ -1,14 +1,15 @@
 # Makefile for ModulusPlus project
 
 CC = gcc
-CFLAGS = -Wall -Wextra -O2 -Iinc -fPIC
+CFLAGS = -Wall -Wextra -O2 -Iinc -fPIC -DDEBUG -g3
 
 SRC = src/modplus.o src/montgomery.o src/uint256.o
 OBJ = examples/main.o
 TARGET = modulus_plus
 STATICLIB = libmodplus.a
 SHAREDLIB = libmodplus.so
-HEADER = inc/modplus.h
+HEADERS = inc/modplus.h inc/uint256.h inc/montgomery.h
+
 
 PREFIX ?= /usr
 INCLUDEDIR = $(PREFIX)/include
@@ -38,13 +39,16 @@ install: all
 	install -Dm755 $(TARGET) $(DESTDIR)$(BINDIR)/$(TARGET)
 	install -Dm644 $(STATICLIB) $(DESTDIR)$(LIBDIR)/$(STATICLIB)
 	install -Dm755 $(SHAREDLIB) $(DESTDIR)$(LIBDIR)/$(SHAREDLIB)
-	install -Dm644 $(HEADER) $(DESTDIR)$(INCLUDEDIR)/modplus.h
+	for header in $(HEADERS); do \
+		install -Dm644 $$header $(DESTDIR)$(INCLUDEDIR)/$$(basename $$header); \
+	done
 
 uninstall:
 	rm -f $(DESTDIR)$(BINDIR)/$(TARGET)
 	rm -f $(DESTDIR)$(LIBDIR)/$(STATICLIB)
 	rm -f $(DESTDIR)$(LIBDIR)/$(SHAREDLIB)
-	rm -f $(DESTDIR)$(INCLUDEDIR)/modplus.h
-
+	for header in $(HEADERS); do \
+		rm -f $(DESTDIR)$(INCLUDEDIR)/$$(basename $$header); \
+	done
 clean:
 	rm -f $(OBJ) $(SRC) $(TARGET) $(STATICLIB) $(SHAREDLIB)
