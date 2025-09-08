@@ -42,7 +42,7 @@ void mod_mul(MParams *mp, montgomery_ctx_t *ctx, uint256_t *result) {
 
 void mod_div(MParams *mp, uint256_t *remainder, uint256_t *result) {
     if (uint256_is_zero(&mp->b)) {
-        fprintf(stderr, "Error: Subtraction by 0 is impossible.");
+        fprintf(stderr, "Error: division by 0 is impossible.");
         return;
     }
         
@@ -70,10 +70,11 @@ static void print_uint256(const uint256_t *num) {
 }
 
 
-/*void mod_exp(MParams *mp, const montgomery_ctx_t *ctx, uint256_t *result) {
+void mod_exp(MParams *mp, const montgomery_ctx_t *ctx, uint256_t *result) {
+
 }
  
-void mod_inv(const montgomery_ctx_t *ctx, const uint256_t *a_mont, uint256_t *result) {
+/*void mod_inv(const montgomery_ctx_t *ctx, const uint256_t *a_mont, uint256_t *result) {
 
     
 
