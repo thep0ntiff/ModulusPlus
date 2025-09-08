@@ -12,19 +12,9 @@
 
 
 static void compute_r_squared(uint256_t *result, const uint256_t *modulus) {
-    uint256_t r_squared = {0};
-    r_squared.limb[0] = 1;
 
-    for (int i = 0; i < 512; i++) {
-        uint256_lshift1(&r_squared);
-        if (uint256_cmp(&r_squared, modulus) >= 0) {
-            if (uint256_sub(&r_squared, modulus, &r_squared) > 0) {
-                fprintf(stderr, "Error: Subtraction underflowed while computing r_squared.");
-                break;
-            }   
-        }
-    }
-    *result = r_squared;
+//    mod_exp();
+
 }
 
 static void compute_n_inv(uint64_t *result, const uint256_t *n) {
@@ -40,7 +30,8 @@ static void compute_n_inv(uint64_t *result, const uint256_t *n) {
 
 
 int montgomery_ctx_init(montgomery_ctx_t *ctx, const uint256_t *modulus) {
-    if ((modulus->limb[0] & 0x1ULL) == 0) {
+    
+    if (uint256_is_even(&ctx->n)) {
         fprintf(stderr, "Error: Montgomery arithmetic requires an odd modulus.");
         return 1;
     }
@@ -52,6 +43,8 @@ int montgomery_ctx_init(montgomery_ctx_t *ctx, const uint256_t *modulus) {
     return 0;
 }
 
+
+//TODO: Fix the Bug that makes the result be 1 bit off for specific Values
 void montgomery_REDC(const montgomery_ctx_t *ctx, uint512_t *T, uint256_t *result) {
 
     for (int i = 0; i < 4; i++) {
@@ -70,6 +63,9 @@ void montgomery_REDC(const montgomery_ctx_t *ctx, uint512_t *T, uint256_t *resul
             carry = (uint64_t)(sum >> 64);
             k++;
         }
+        if (carry) {
+            T->limb[4] += carry;
+        }
     }
 
     uint256_copy(result, (uint256_t *)&T->limb[4]);
@@ -77,6 +73,7 @@ void montgomery_REDC(const montgomery_ctx_t *ctx, uint512_t *T, uint256_t *resul
     if (uint256_cmp(result, &ctx->n) >= 0) {
         uint256_sub(result, &ctx->n, result);
     }
+
 
 }
 
@@ -88,8 +85,6 @@ void to_montgomery(const montgomery_ctx_t *ctx, const uint256_t *a, uint256_t *a
 
 void from_montgomery(const montgomery_ctx_t *ctx, const uint256_t *a_mont, uint256_t *a) {
     uint512_t T = {0};
-    const uint256_t one = {{1, 0, 0, 0}};
-    uint256_mul(a_mont, &one, &T);
+    for (int i = 0; i < 4; i++) T.limb[i] = a_mont->limb[i];
     montgomery_REDC(ctx, &T, a);
-    a->limb[0] += 1;
 }
