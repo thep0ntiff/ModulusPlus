@@ -250,6 +250,4 @@ void uint256_mul(const uint256_t *x, const uint256_t *y, uint512_t *T) {
             k++;
         }
     }
-    //REDC at the end is needed, call this at mod_mul()
 }
-

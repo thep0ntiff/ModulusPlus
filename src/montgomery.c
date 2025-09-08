@@ -44,12 +44,11 @@ int montgomery_ctx_init(montgomery_ctx_t *ctx, const uint256_t *modulus) {
 }
 
 
-//TODO: Fix the Bug that makes the result be 1 bit off for specific Values
-void montgomery_REDC(const montgomery_ctx_t *ctx, uint512_t *T, uint256_t *result) {
-
+int montgomery_REDC(const montgomery_ctx_t *ctx, uint512_t *T, uint256_t *result) {
+    uint64_t carry;
     for (int i = 0; i < 4; i++) {
         uint64_t m = T->limb[i] * ctx->n_inv;
-        uint64_t carry = 0;
+        carry = 0;
 
         for (int j = 0; j < 4; j++) {
             __uint128_t prod = (__uint128_t)m * ctx->n.limb[j] + T->limb[i + j] + carry;
@@ -63,9 +62,6 @@ void montgomery_REDC(const montgomery_ctx_t *ctx, uint512_t *T, uint256_t *resul
             carry = (uint64_t)(sum >> 64);
             k++;
         }
-        if (carry) {
-            T->limb[4] += carry;
-        }
     }
 
     uint256_copy(result, (uint256_t *)&T->limb[4]);
@@ -73,8 +69,8 @@ void montgomery_REDC(const montgomery_ctx_t *ctx, uint512_t *T, uint256_t *resul
     if (uint256_cmp(result, &ctx->n) >= 0) {
         uint256_sub(result, &ctx->n, result);
     }
-
-
+    
+    return carry;
 }
 
 void to_montgomery(const montgomery_ctx_t *ctx, const uint256_t *a, uint256_t *a_mont) {

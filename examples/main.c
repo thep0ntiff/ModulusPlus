@@ -1,4 +1,4 @@
-// main.cpp
+// main.c
 #include "modplus.h"
 #include "montgomery.h"
 
@@ -47,10 +47,10 @@ const uint64_t n[4] = {
 
 
 const uint256_t R2 = { .limb = {
-    0x0000000000000003,
-    0xfffffffbffffffff,
-    0xfffffffffffffffe,
-    0x00000004fffffffd
+    0x0000000000000003ULL,
+    0xfffffffbffffffffULL,
+    0xfffffffffffffffeULL,
+    0x00000004fffffffdULL
 } };
 
 const uint64_t p0_inv = 0x00000001;
@@ -78,6 +78,8 @@ void print_uint256_hex(const uint256_t *num) {
 }
 
 
+
+
 int main() {
     
     printf("Testing secp256r1 modular arithmetic\n");
@@ -100,15 +102,17 @@ int main() {
     print_uint256_hex(&div_result);
     printf("remainder: ");
     print_uint256_hex(&remainder);
-
-
+    
+    /*uint256_t exp_result = {0};
+    mod_exp(&mp, &montctx, &exp_result);
+    print_uint256_hex(&exp_result);*/
+    
+    
     /*uint256_t inv_result = {0};
     uint256_t a_mont;
     to_montgomery(&montctx, &A, &a_mont);
     mod_inv(&montctx, &a_mont, &inv_result);
     print_uint256_hex(&inv_result); */
-
-
 
     return 0;
 }

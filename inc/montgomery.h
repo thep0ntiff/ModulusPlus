@@ -20,6 +20,6 @@ int montgomery_ctx_init(montgomery_ctx_t *ctx, const uint256_t *modulus);
 
 void to_montgomery(const montgomery_ctx_t *ctx, const uint256_t *a, uint256_t *a_mont);
 void from_montgomery(const montgomery_ctx_t *ctx, const uint256_t *a_mont, uint256_t *a);
-void montgomery_REDC(const montgomery_ctx_t *ctx, uint512_t *T, uint256_t *result);
+int montgomery_REDC(const montgomery_ctx_t *ctx, uint512_t *T, uint256_t *result);
 
 #endif /* MONTGOMERY_H */
