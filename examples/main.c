@@ -95,6 +95,15 @@ int main() {
     //montgomery_ctx_init(&montctx, &modulus);  
     mod_mul(&mp, &montctx, &mul_result);
     print_uint256_hex(&mul_result);
+
+    MParams mmp = {
+        .a = mul_result,
+        .b = mul_result,
+        .modulus = modulus
+    };
+    uint256_clear(&mul_result);
+    mod_mul(&mmp, &montctx, &mul_result);
+    print_uint256_hex(&mul_result);
     
     uint256_t div_result, remainder;
     mod_div(&mp, &remainder, &div_result);
@@ -103,9 +112,9 @@ int main() {
     printf("remainder: ");
     print_uint256_hex(&remainder);
     
-    /*uint256_t exp_result = {0};
+    uint256_t exp_result = {0};
     mod_exp(&mp, &montctx, &exp_result);
-    print_uint256_hex(&exp_result);*/
+    print_uint256_hex(&exp_result);
     
     
     /*uint256_t inv_result = {0};

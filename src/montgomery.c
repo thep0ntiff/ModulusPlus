@@ -44,7 +44,7 @@ int montgomery_ctx_init(montgomery_ctx_t *ctx, const uint256_t *modulus) {
 }
 
 
-int montgomery_REDC(const montgomery_ctx_t *ctx, uint512_t *T, uint256_t *result) {
+void montgomery_REDC(const montgomery_ctx_t *ctx, uint512_t *T, uint256_t *result) {
     uint64_t carry;
     for (int i = 0; i < 4; i++) {
         uint64_t m = T->limb[i] * ctx->n_inv;
@@ -62,6 +62,8 @@ int montgomery_REDC(const montgomery_ctx_t *ctx, uint512_t *T, uint256_t *result
             carry = (uint64_t)(sum >> 64);
             k++;
         }
+        
+
     }
 
     uint256_copy(result, (uint256_t *)&T->limb[4]);
@@ -69,8 +71,14 @@ int montgomery_REDC(const montgomery_ctx_t *ctx, uint512_t *T, uint256_t *result
     if (uint256_cmp(result, &ctx->n) >= 0) {
         uint256_sub(result, &ctx->n, result);
     }
+
+    if (carry) {
+            uint256_t carry_uint256 = {.limb = {carry, 0, 0, 0}};
+            uint256_t carry_mont = {{0}};
+            to_montgomery(ctx, &carry_uint256, &carry_mont);
+            uint256_add(result, &carry_mont, result);
+    }
     
-    return carry;
 }
 
 void to_montgomery(const montgomery_ctx_t *ctx, const uint256_t *a, uint256_t *a_mont) {

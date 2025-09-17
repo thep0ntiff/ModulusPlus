@@ -15,6 +15,7 @@ print(f"Subtraction Result: {result_sub:#x}")
 
 result_mul = (a * b) % p
 print(f"Mul result: {result_mul:#x}")
+print(f"test: {((result_mul * result_mul) % p):#x}")
 
 q, r = divmod(a, b)
 print("Div result: ", hex(q))
@@ -22,7 +23,3 @@ print("remainder: ", hex(r))
 
 result_inv = pow(a, b, p)
 print(f"Exp Result: {result_inv:#x}")
-
-res = 0xfffffffeffffffffffffffffffffffff000000001
-resres = pow(res, 2)
-print(f"{resres:#x}")

@@ -34,10 +34,8 @@ void mod_mul(MParams *mp, montgomery_ctx_t *ctx, uint256_t *result) {
 
     uint256_mul(&a_mont, &b_mont, &T);
 
-    int carry = montgomery_REDC(ctx, &T, &temp_result);
-    printf("carry: %d\n", carry);
+    montgomery_REDC(ctx, &T, &temp_result);
     from_montgomery(ctx, &temp_result, result);
-    result->limb[0] += carry;
 }
 
 void mod_div(MParams *mp, uint256_t *remainder, uint256_t *result) {
@@ -62,17 +60,31 @@ void mod_div(MParams *mp, uint256_t *remainder, uint256_t *result) {
     }
 }
 
-static void print_uint256(const uint256_t *num) {
-    for (int i = 3; i >= 0; i--) {
-        printf("%016llx", (unsigned long long)num->limb[i]);
-    }
-    printf("\n");
-}
-
 
 void mod_exp(MParams *mp, const montgomery_ctx_t *ctx, uint256_t *result) {
-
+    uint256_t res, base;
+    uint256_t one = {{1, 0, 0, 0}};
+    
+    to_montgomery(ctx, &one, &res);
+    to_montgomery(ctx, &mp->a, &base);
+    
+    for (int i = 255; i >= 0; i--) {
+        uint512_t T;
+        uint256_t temp;
+        uint256_mul(&res, &res, &T);
+        montgomery_REDC(ctx, &T, &temp);
+        res = temp;
+        
+        if (uint256_test_bit(&mp->b, i)) {
+            uint256_mul(&res, &base, &T);
+            montgomery_REDC(ctx, &T, &temp);
+            res = temp;
+        }
+    }
+    
+    from_montgomery(ctx, &res, result);
 }
+
  
 /*void mod_inv(const montgomery_ctx_t *ctx, const uint256_t *a_mont, uint256_t *result) {
 
