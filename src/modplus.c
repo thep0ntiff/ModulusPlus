@@ -86,10 +86,24 @@ void mod_exp(MParams *mp, const montgomery_ctx_t *ctx, uint256_t *result) {
 }
 
  
-/*void mod_inv(const montgomery_ctx_t *ctx, const uint256_t *a_mont, uint256_t *result) {
+void mod_inv(const montgomery_ctx_t *ctx, const uint256_t *base, uint256_t *result) {
+    uint256_t gcd = gcd_std(*base, ctx->n);
+    if (gcd.limb[0] != 1 || gcd.limb[1] != 0 || gcd.limb[2] != 0 || gcd.limb[3] != 0) {
+        fprintf(stderr, "Error: Your modulus must be prime for Fermat's inversion.\n");
+        return;
+    }
+    // a^p-2 = a^-1 (mod p)
+    uint256_t two = {{2, 0, 0, 0}};
+    uint256_t exp;
+    uint256_sub(&ctx->n, &two, &exp);
+    MParams inv = {
+        .a = *base,
+        .b = exp,
+        .modulus = ctx->n
+    };
 
+    mod_exp(&inv, ctx, result);
     
-
-}*/
+}
 
 

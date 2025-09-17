@@ -21,5 +21,8 @@ q, r = divmod(a, b)
 print("Div result: ", hex(q))
 print("remainder: ", hex(r))
 
-result_inv = pow(a, b, p)
-print(f"Exp Result: {result_inv:#x}")
+result_exp = pow(a, b, p)
+print(f"Exp Result: {result_exp:#x}")
+
+result_inv = pow(a, -1, p)
+print(f"Inv Result: {result_inv:#x}")

@@ -108,11 +108,9 @@ int main() {
     print_uint256_hex(&exp_result);
     
     
-    /*uint256_t inv_result = {0};
-    uint256_t a_mont;
-    to_montgomery(&montctx, &A, &a_mont);
-    mod_inv(&montctx, &a_mont, &inv_result);
-    print_uint256_hex(&inv_result); */
+    uint256_t inv_result = {0};
+    mod_inv(&montctx, &A, &inv_result);
+    print_uint256_hex(&inv_result);
 
     return 0;
 }
