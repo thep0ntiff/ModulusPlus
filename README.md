@@ -9,7 +9,7 @@ ModulusPlus provides efficient implementations of large integer arithmetic opera
 
 - **256-bit Unsigned Integer Support**: Complete arithmetic operations for 256-bit integers
 - **Montgomery Multiplication**: Optimized modular multiplication using Montgomery reduction
-- **Modular Arithmetic**: Addition, subtraction, multiplication, and division in modular arithmetic
+- **Modular Arithmetic**: Addition, subtraction, multiplication, division and exponentiation in modular arithmetic
 - **Bit Operations**: Bit testing, setting, and manipulation functions
 - **GCD Computation**: Stein's algorithm for greatest common divisor calculation
 - **Memory Efficient**: Uses limb-based representation for optimal memory usage
@@ -32,7 +32,8 @@ ModulusPlus provides efficient implementations of large integer arithmetic opera
 - Modular addition and subtraction
 - Modular multiplication using Montgomery arithmetic
 - Modular division with quotient and remainder
-- Modular inverse computation (in development)
+- Modular exponentiation
+- Modular inverse computation
 
 ## Data Structures
 
@@ -145,7 +146,6 @@ uint256_t gcd_result = gcd_std(a, b);
 
 ### In Development
 - 🔧 Extended GCD algorithm (`gcd_ext` function commented out due to infinite loop issue)
-- 🔧 Modular inverse computation
 - 🔧 Additional optimization passes
 
 ## Technical Notes
