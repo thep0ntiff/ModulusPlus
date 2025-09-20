@@ -25,17 +25,20 @@ void mod_sub(MParams *mp, uint256_t *result) {
     }
 }
 
-void mod_mul(MParams *mp, montgomery_ctx_t *ctx, uint256_t *result) {
+void mod_mul(MParams *mp, uint256_t *result) {
+    
     uint512_t T = {0};
     uint256_t a_mont, b_mont, temp_result;
 
-    to_montgomery(ctx, &mp->a, &a_mont);
-    to_montgomery(ctx, &mp->b, &b_mont);
+    montgomery_update_ctx(&mp->modulus);
+
+    to_montgomery(&mp->a, &a_mont);
+    to_montgomery(&mp->b, &b_mont);
 
     uint256_mul(&a_mont, &b_mont, &T);
 
-    montgomery_REDC(ctx, &T, &temp_result);
-    from_montgomery(ctx, &temp_result, result);
+    montgomery_REDC(&T, &temp_result);
+    from_montgomery(&temp_result, result);
 }
 
 void mod_div(MParams *mp, uint256_t *remainder, uint256_t *result) {
@@ -61,33 +64,35 @@ void mod_div(MParams *mp, uint256_t *remainder, uint256_t *result) {
 }
 
 
-void mod_exp(MParams *mp, const montgomery_ctx_t *ctx, uint256_t *result) {
+void mod_exp(MParams *mp, uint256_t *result) {
     uint256_t res, base;
     uint256_t one = {{1, 0, 0, 0}};
     
-    to_montgomery(ctx, &one, &res);
-    to_montgomery(ctx, &mp->a, &base);
+    montgomery_update_ctx(&mp->modulus);
+
+    to_montgomery(&one, &res);
+    to_montgomery(&mp->a, &base);
     
     for (int i = 255; i >= 0; i--) {
         uint512_t T;
         uint256_t temp;
         uint256_mul(&res, &res, &T);
-        montgomery_REDC(ctx, &T, &temp);
+        montgomery_REDC(&T, &temp);
         res = temp;
         
         if (uint256_test_bit(&mp->b, i)) {
             uint256_mul(&res, &base, &T);
-            montgomery_REDC(ctx, &T, &temp);
+            montgomery_REDC(&T, &temp);
             res = temp;
         }
     }
     
-    from_montgomery(ctx, &res, result);
+    from_montgomery(&res, result);
 }
 
  
-void mod_inv(const montgomery_ctx_t *ctx, const uint256_t *base, uint256_t *result) {
-    uint256_t gcd = gcd_std(*base, ctx->n);
+void mod_inv(const uint256_t *base, const uint256_t *modulus, uint256_t *result) {
+    uint256_t gcd = gcd_std(*base, *modulus);
     if (gcd.limb[0] != 1 || gcd.limb[1] != 0 || gcd.limb[2] != 0 || gcd.limb[3] != 0) {
         fprintf(stderr, "Error: Your modulus must be prime for Fermat's inversion.\n");
         return;
@@ -95,14 +100,14 @@ void mod_inv(const montgomery_ctx_t *ctx, const uint256_t *base, uint256_t *resu
     // a^p-2 = a^-1 (mod p)
     uint256_t two = {{2, 0, 0, 0}};
     uint256_t exp;
-    uint256_sub(&ctx->n, &two, &exp);
+    uint256_sub(modulus, &two, &exp);
     MParams inv = {
         .a = *base,
         .b = exp,
-        .modulus = ctx->n
+        .modulus = *modulus
     };
 
-    mod_exp(&inv, ctx, result);
+    mod_exp(&inv, result);
     
 }
 

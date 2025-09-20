@@ -11,47 +11,33 @@
 #include <stdio.h>
 
 
-static void compute_r_squared(uint256_t *result, const uint256_t *modulus) {
+static const uint64_t PRECOMP_N_INV = 0x1;        // Precomputed value of n_inv for 256 bit modulus, which will always be the case
+static const uint256_t PRECOMP_R2 = { .limb = {   // Precomputed value of R2 for 256 bit modulus
+    0x0000000000000003ULL,
+    0xfffffffbffffffffULL,
+    0xfffffffffffffffeULL,
+    0x00000004fffffffdULL
+} };
 
-//    mod_exp();
+montgomery_ctx_t MONTGOMERY_CTX = {
+    .n = {{0}},              // modulus filled later
+    .n_inv = PRECOMP_N_INV,
+    .r2 = PRECOMP_R2
+};
 
-}
-
-static void compute_n_inv(uint64_t *result, const uint256_t *n) {
-    uint64_t n0 = n->limb[0];
-
-    uint64_t x = 1;
-    
-    for (int i = 0; i < 6; i++) {
-        x = x * (2 - n0 * x);
-    }
-    *result = x;
-}
-
-
-int montgomery_ctx_init(montgomery_ctx_t *ctx, const uint256_t *modulus) {
-    
-    if (uint256_is_even(&ctx->n)) {
-        fprintf(stderr, "Error: Montgomery arithmetic requires an odd modulus.");
-        return 1;
-    }
-    ctx->n = *modulus;
-    
-    compute_r_squared(&ctx->r_squared, modulus);
-    compute_n_inv(&ctx->n_inv, modulus);
-
-    return 0;
+void montgomery_update_ctx(const uint256_t *modulus) {
+    MONTGOMERY_CTX.n = *modulus;
 }
 
 
-void montgomery_REDC(const montgomery_ctx_t *ctx, uint512_t *T, uint256_t *result) {
+void montgomery_REDC(uint512_t *T, uint256_t *result) {
     uint64_t carry;
     for (int i = 0; i < 4; i++) {
-        uint64_t m = T->limb[i] * ctx->n_inv;
+        uint64_t m = T->limb[i] * MONTGOMERY_CTX.n_inv;
         carry = 0;
 
         for (int j = 0; j < 4; j++) {
-            __uint128_t prod = (__uint128_t)m * ctx->n.limb[j] + T->limb[i + j] + carry;
+            __uint128_t prod = (__uint128_t)m * MONTGOMERY_CTX.n.limb[j] + T->limb[i + j] + carry;
             T->limb[i + j] = (uint64_t)prod;
             carry = (uint64_t)(prod >> 64);
         }
@@ -68,27 +54,27 @@ void montgomery_REDC(const montgomery_ctx_t *ctx, uint512_t *T, uint256_t *resul
 
     uint256_copy(result, (uint256_t *)&T->limb[4]);
 
-    if (uint256_cmp(result, &ctx->n) >= 0) {
-        uint256_sub(result, &ctx->n, result);
+    if (uint256_cmp(result, &MONTGOMERY_CTX.n) >= 0) {
+        uint256_sub(result, &MONTGOMERY_CTX.n, result);
     }
 
     if (carry) {
             uint256_t carry_uint256 = {.limb = {carry, 0, 0, 0}};
             uint256_t carry_mont = {{0}};
-            to_montgomery(ctx, &carry_uint256, &carry_mont);
+            to_montgomery(&carry_uint256, &carry_mont);
             uint256_add(result, &carry_mont, result);
     }
     
 }
 
-void to_montgomery(const montgomery_ctx_t *ctx, const uint256_t *a, uint256_t *a_mont) {
+void to_montgomery(const uint256_t *a, uint256_t *a_mont) {
     uint512_t T = {0};
-    uint256_mul(a, &ctx->r_squared, &T);
-    montgomery_REDC(ctx, &T, a_mont);
+    uint256_mul(a, &MONTGOMERY_CTX.r2, &T);
+    montgomery_REDC(&T, a_mont);
 }
 
-void from_montgomery(const montgomery_ctx_t *ctx, const uint256_t *a_mont, uint256_t *a) {
+void from_montgomery(const uint256_t *a_mont, uint256_t *a) {
     uint512_t T = {0};
     for (int i = 0; i < 4; i++) T.limb[i] = a_mont->limb[i];
-    montgomery_REDC(ctx, &T, a);
+    montgomery_REDC(&T, a);
 }

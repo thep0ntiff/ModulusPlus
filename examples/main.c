@@ -46,26 +46,12 @@ const uint64_t n[4] = {
 */
 
 
-const uint256_t R2 = { .limb = {
-    0x0000000000000003ULL,
-    0xfffffffbffffffffULL,
-    0xfffffffffffffffeULL,
-    0x00000004fffffffdULL
-} };
-
-const uint64_t p0_inv = 0x00000001;
 
 
 MParams mp = {
     .a = A,
     .b = B,
     .modulus = modulus
-};
-
-montgomery_ctx_t montctx = {
-    .n = modulus,
-    .n_inv = p0_inv,
-    .r_squared = R2
 };
 
 
@@ -93,7 +79,7 @@ int main() {
 
     uint256_t mul_result = {0};
     //montgomery_ctx_init(&montctx, &modulus);  
-    mod_mul(&mp, &montctx, &mul_result);
+    mod_mul(&mp, &mul_result);
     print_uint256_hex(&mul_result);
     
     uint256_t div_result, remainder;
@@ -104,12 +90,12 @@ int main() {
     print_uint256_hex(&remainder);
     
     uint256_t exp_result = {0};
-    mod_exp(&mp, &montctx, &exp_result);
+    mod_exp(&mp, &exp_result);
     print_uint256_hex(&exp_result);
     
     
     uint256_t inv_result = {0};
-    mod_inv(&montctx, &A, &inv_result);
+    mod_inv(&A, &mp.modulus, &inv_result);
     print_uint256_hex(&inv_result);
 
     return 0;
