@@ -48,13 +48,6 @@ typedef struct {
     uint64_t limb[8];
 } uint512_t;
 
-// Montgomery arithmetic context
-typedef struct {
-    uint256_t n;            // Modulus N
-    uint64_t n_inv;         // n^-1 (mod 2^64)
-    uint256_t r_squared;    // r^2 (mod 2^256)
-} montgomery_ctx_t;
-
 // Modular operation parameters
 typedef struct {
     uint256_t a;
@@ -66,8 +59,8 @@ typedef struct {
 ## Building
 
 ### Prerequisites
-- GCC or Clang with C99 support
-- Make (optional, for build automation)
+- GCC or Clang
+- Make 
 
 ```bash
 make install
@@ -87,7 +80,7 @@ uint256_t result;
 uint64_t carry = uint256_add(&a, &b, &result);
 
 // Comparison
-int cmp = uint256_cmp(&a, &b);  // -1, 0, or 1
+int cmp = uint256_cmp(&dest, &src);  // -1, 0, or 1
 
 // Bit operations
 int bit_set = uint256_test_bit(&a, 5);
@@ -111,11 +104,10 @@ uint256_t result;
 // Modular addition
 mod_add(&mp, &result);
 
-// Modular multiplication (requires Montgomery context)
-montgomery_ctx_t ctx;
-if (montgomery_ctx_init(&ctx, &mp.modulus) == 0) {
-    mod_mul(&mp, &ctx, &result);
-}
+// Modular multiplication (uses montgomery arithmatic)
+
+mod_mul(&mp, &result);
+
 ```
 
 ### GCD Calculation
