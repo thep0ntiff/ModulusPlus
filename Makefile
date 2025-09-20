@@ -1,7 +1,7 @@
 # Makefile for ModulusPlus project
 
 CC = gcc
-CFLAGS = -Wall -Wextra -O2 -Iinc -fPIC -DDEBUG -g3
+CFLAGS = -Wall -Wextra -O2 -Iinc -fPIC
 
 SRC = src/modplus.o src/montgomery.o src/uint256.o
 OBJ = examples/main.o
