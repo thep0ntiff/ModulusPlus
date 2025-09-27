@@ -56,7 +56,6 @@ endif
 install:
 ifeq ($(OS),Windows_NT)
 	$(MKDIR) "$(BINDIR)" "$(LIBDIR)" "$(INCLUDEDIR)"
-	$(CP) $(TARGET) "$(BINDIR)"
 	$(CP) $(STATICLIB) "$(LIBDIR)"
 	$(CP) "inc\modplus.h" "$(INCLUDEDIR)"
 	$(CP) "inc\uint256.h" "$(INCLUDEDIR)"
