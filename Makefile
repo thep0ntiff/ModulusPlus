@@ -46,7 +46,7 @@ $(SHAREDLIB): $(SRC)
 
 clean:
 ifeq ($(OS),Windows_NT)
-	-$(RM) $(TARGET) $(STATICLIB) $(SHAREDLIB) $(SRC)
+	-$(RM) $(TARGET) $(STATICLIB) $(SHAREDLIB)
 	-if exist src del /S /Q src\*.o
 	-if exist examples del /S /Q examples\*.o
 else
