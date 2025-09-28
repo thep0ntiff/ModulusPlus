@@ -1,6 +1,6 @@
 # PKGBUILD
 pkgname=ModulusPlus
-pkgver=1.0.2
+pkgver=1.0.5
 pkgrel=1
 pkgdesc="Modular arithmetic library for 256 bit unsigned integers"
 arch=('x86_64')
@@ -9,7 +9,7 @@ license=('MIT')
 depends=()
 makedepends=('gcc' 'make')
 source=("$pkgname-$pkgver.tar.gz::https://github.com/thep0ntiff/ModulusPlus/archive/refs/tags/v$pkgver.tar.gz")
-sha256sums=('2a2cc3c5969fa95214c575f29a4fa5e8b8d9a86c6c73a7ad92a45ad5789059ef')
+sha256sums=('45e697c10e866c1f524ba77618b6577099f0a753dcb1801abd3e6e6cd8d22116')
 
 build() {
     cd "$srcdir/$pkgname-$pkgver"
