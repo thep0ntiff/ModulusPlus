@@ -12,12 +12,11 @@ ModulusPlus provides efficient implementations of large integer arithmetic opera
 - **Modular Arithmetic**: Addition, subtraction, multiplication, division and exponentiation in modular arithmetic
 - **Bit Operations**: Bit testing, setting, and manipulation functions
 - **GCD Computation**: Stein's algorithm for greatest common divisor calculation
-- **Memory Efficient**: Uses limb-based representation for optimal memory usage
 
 ## Core Components
 
 ### 1. 256-bit Integer Operations (`uint256.h/c`)
-- Basic arithmetic: addition, subtraction, multiplication
+- Basic arithmetic: addition, subtraction, multiplication and division
 - Bit manipulation: shift operations, bit testing/setting
 - Comparison operations and utility functions
 - GCD computation using Stein's algorithm
@@ -31,7 +30,6 @@ ModulusPlus provides efficient implementations of large integer arithmetic opera
 ### 3. Modular Operations (`modplus.h/c`)
 - Modular addition and subtraction
 - Modular multiplication using Montgomery arithmetic
-- Modular division with quotient and remainder
 - Modular exponentiation
 - Modular inverse computation
 
@@ -48,12 +46,6 @@ typedef struct {
     uint64_t limb[8];
 } uint512_t;
 
-// Modular operation parameters
-typedef struct {
-    uint256_t a;
-    uint256_t b;
-    uint256_t modulus;
-} MParams;
 ```
 
 ## Building
@@ -66,90 +58,17 @@ typedef struct {
 make install
 ```
 
-## Usage Examples
-
-### Basic 256-bit Operations
-```c
-#include "uint256.h"
-
-uint256_t a = {{0x123456789ABCDEF0, 0xFEDCBA0987654321, 0, 0}};
-uint256_t b = {{0x1111111111111111, 0x2222222222222222, 0, 0}};
-uint256_t result;
-
-// Addition
-uint64_t carry = uint256_add(&a, &b, &result);
-
-// Comparison
-int cmp = uint256_cmp(&dest, &src);  // -1, 0, or 1
-
-// Bit operations
-int bit_set = uint256_test_bit(&a, 5);
-uint256_set_bit(&result, 10);
-```
-
-### Modular Arithmetic
-```c
-#include "modplus.h"
-#include "montgomery.h"
-
-// Initialize parameters
-MParams mp = {
-    .a = {{0x123456789ABCDEF0, 0, 0, 0}},
-    .b = {{0x987654321FEDCBA0, 0, 0, 0}},
-    .modulus = {{0xFFFFFFFFFFFFFFFF, 0xFFFFFFFFFFFFFFFF, 0xFFFFFFFFFFFFFFFF, 0xFFFFFFFFFFFFFFFF}}
-};
-
-uint256_t result;
-
-// Modular addition
-mod_add(&mp, &result);
-
-// Modular multiplication (uses montgomery arithmatic)
-
-mod_mul(&mp, &result);
-
-```
-
-### GCD Calculation
-```c
-#include "uint256.h"
-
-uint256_t a = {{12345, 0, 0, 0}};
-uint256_t b = {{67890, 0, 0, 0}};
-
-uint256_t gcd_result = gcd_std(a, b);
-```
-
 ## Performance Considerations
 
 - **Montgomery Multiplication**: The library uses Montgomery reduction for efficient modular multiplication, particularly beneficial when performing multiple operations with the same modulus
 - **Limb-based Representation**: Numbers are stored as arrays of 64-bit limbs for optimal performance on 64-bit systems
-- **Carry Handling**: Efficient carry propagation using 128-bit intermediate calculations
 - **Memory Layout**: Structures are designed for cache-friendly access patterns
 
-## Current Development Status
 
-### Completed Features
-- ✅ 256-bit integer arithmetic
-- ✅ Montgomery multiplication context
-- ✅ Basic modular operations
-- ✅ GCD computation
-- ✅ Bit manipulation operations
-
-### In Development
-- 🔧 Extended GCD algorithm (`gcd_ext` function commented out due to infinite loop issue)
-- 🔧 Additional optimization passes
-
-## Technical Notes
-
-### Montgomery Arithmetic Requirements
+### Important
 - The modulus must be odd for Montgomery arithmetic to work correctly
-- The library automatically validates this requirement during context initialization
+- Your modulus needs to be prime for mod_inv to work
 
-### Precision and Overflow
-- All operations handle carry/borrow propagation correctly
-- 512-bit intermediate results are used for multiplication to prevent overflow
-- Functions return appropriate error codes or carry flags
 
 ## Contributing
 
