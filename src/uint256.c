@@ -79,106 +79,6 @@ uint256_t gcd_std(uint256_t a, uint256_t b) {
 }
 
 
-// TODO: Fix the infinite loop issue
-
-/*uint256_t gcd_ext(uint256_t a, uint256_t n, uint256_t *x, uint256_t *y) {
-    uint256_t u, v;
-    uint256_t x1 = {{1, 0, 0, 0}};
-    uint256_t x2 = {{0, 0, 0, 0}};
-    uint256_t y1 = {{0, 0, 0, 0}};
-    uint256_t y2 = {{1, 0, 0, 0}};
-    uint256_copy(&u, &a);
-    uint256_copy(&v, &n);
-    
-    while (!uint256_is_zero(&u) && (!uint256_is_zero(&v))) {
-        
-        while (uint256_is_even(&u) && (!uint256_is_zero(&u))) {
-            uint256_rshift1(&u);
-            
-            if (uint256_is_even(&x1)) {
-                uint256_rshift1(&x1);
-            } else {
-                uint256_add(&x1, &n, &x1);
-                uint256_rshift1(&x1);
-            }
-
-            if (uint256_is_even(&y1)) {
-                uint256_rshift1(&y1);
-            } else {
-                uint256_add(&y1, &n, &y1);
-                uint256_rshift1(&y1);
-            }
-        }
-
-        while (uint256_is_even(&v) && (!uint256_is_zero(&v))) {
-            uint256_rshift1(&v);
-            if (uint256_is_even(&x2)) {
-                uint256_rshift1(&x2);
-            } else {
-                uint256_add(&x2, &n, &x2);
-                uint256_rshift1(&x2);
-            }
-
-            if (uint256_is_even(&y2)) {
-                uint256_rshift1(&y2);
-            } else {
-                uint256_add(&y2, &n, &y2);
-                uint256_rshift1(&y2);
-            }
-        
-        }    
-        if (uint256_cmp(&u, &v) >= 0) {
-            uint256_sub(&u, &v, &u);
-
-            if (uint256_cmp(&x1, &x2) >= 0) {
-                uint256_sub(&x1, &x2, &x1);
-            } else {
-                uint256_t temp;
-                uint256_sub(&x2, &x1, &temp);
-                uint256_sub(&n, &temp, &x1);
-            }
-
-            if (uint256_cmp(&y1, &y2) >= 0) {
-                uint256_sub(&y1, &y2, &y1);
-            } else {
-                uint256_t temp;
-                uint256_sub(&y2, &y1, &temp);
-                uint256_sub(&n, &temp, &y1);
-            }
-
-        } else {
-            uint256_sub(&v, &u, &v);
-            if (uint256_cmp(&x2, &x1) >= 0) {
-                uint256_sub(&x2, &x1, &x2);
-            } else {
-                uint256_t temp;
-                uint256_sub(&x1, &x2, &temp);
-                uint256_sub(&n, &temp, &x2);
-            }
-
-            if (uint256_cmp(&y2, &y1) >= 0) {
-                uint256_sub(&y2, &y1, &y2);
-            } else {
-                uint256_t temp;
-                uint256_sub(&y1, &y2, &temp);
-                uint256_sub(&n, &temp, &y2);
-            }
-        }
-        
-    }
-
-    if (!uint256_is_zero(&u)) {
-        *x = x1;
-        *y = y1;
-        return u;
-    } else {
-        *x = x2;
-        *y = y2;
-        return v;
-    }
-
-} */
-
 int uint256_test_bit(const uint256_t *a, int bit_index) {
     if ((unsigned)bit_index >= 256) return 1;
     int limb = bit_index / 64;
@@ -248,6 +148,28 @@ void uint256_mul(const uint256_t *x, const uint256_t *y, uint512_t *T) {
             T->limb[k] = (uint64_t)sum;
             carry = (uint64_t)(sum >> 64);
             k++;
+        }
+    }
+}
+
+void uint256_div(const uint256_t *x, const uint256_t *y, uint256_t *remainder, uint256_t *result) {
+    if (uint256_is_zero(y)) {
+        fprintf(stderr, "Error: division by 0 is impossible.");
+        return;
+    }
+    
+    uint256_clear(remainder);
+    uint256_clear(result);
+
+    for (int i = 255; i >= 0; i--) {
+        uint256_lshift1(remainder);
+
+        if (uint256_test_bit(x, i)) {
+            remainder->limb[0] |= 0x1ULL;
+        }
+        if (uint256_cmp(remainder, y) >= 0) {
+            uint256_sub(remainder, y, remainder);
+            uint256_set_bit(result, i);
         }
     }
 }

@@ -29,34 +29,7 @@ const uint256_t B = { .limb = {
 } };
 
 
-
-
-/*
-const uint64_t G[2][4] = {
-    {0xf4a13945d898c296ULL, 0x77037d812deb33a0ULL, 0xf8bce6e563a440f2ULL, 0x6b17d1f2e12c4247ULL},
-    {0xcbb6406837bf51f5ULL, 0x2bce33576b315eceULL, 0x8ee7eb4a7c0f9e16ULL, 0x4fe342e2fe1a7f9bULL}
-};
-
-const uint64_t n[4] = {
-    0xf3b9cac2fc632551ULL,
-    0xbce6faada7179e84ULL,
-    0xffffffffffffffffULL,
-    0xffffffff00000000ULL
-};
-*/
-
-
-
-
-MParams mp = {
-    .a = A,
-    .b = B,
-    .modulus = modulus
-};
-
-
 void print_uint256_hex(const uint256_t *num) {
-    // Print from most significant limb (3) to least (0)
     for (int i = 3; i >= 0; i--) {
         printf("%016llx", (unsigned long long)num->limb[i]);
     }
@@ -70,32 +43,33 @@ int main() {
     
     printf("Testing secp256r1 modular arithmetic\n");
     uint256_t add_result = {0};
-    mod_add(&mp, &add_result);
+    mod_add(&A, &B, &modulus, &add_result);
     print_uint256_hex(&add_result);
 
     uint256_t sub_result = {0};
-    mod_sub(&mp, &sub_result);
+    mod_sub(&A, &B, &modulus, &sub_result);
     print_uint256_hex(&sub_result);
 
     uint256_t mul_result = {0};
     //montgomery_ctx_init(&montctx, &modulus);  
-    mod_mul(&mp, &mul_result);
+    mod_mul(&A, &B, &modulus, &mul_result);
     print_uint256_hex(&mul_result);
     
-    uint256_t div_result, remainder;
-    mod_div(&mp, &remainder, &div_result);
+    uint256_t div_result = {{0}};
+    uint256_t remainder = {{0}};
+    uint256_div(&A, &B, &remainder, &div_result);
     printf("Div Result: ");
     print_uint256_hex(&div_result);
     printf("remainder: ");
     print_uint256_hex(&remainder);
     
     uint256_t exp_result = {0};
-    mod_exp(&mp, &exp_result);
+    mod_exp(&A, &B, &modulus, &exp_result);
     print_uint256_hex(&exp_result);
     
     
     uint256_t inv_result = {0};
-    mod_inv(&A, &mp.modulus, &inv_result);
+    mod_inv(&A, &modulus, &inv_result);
     print_uint256_hex(&inv_result);
 
     return 0;

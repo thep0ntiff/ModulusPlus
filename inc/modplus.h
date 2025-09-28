@@ -12,17 +12,10 @@
 #include "uint256.h"
 #include "montgomery.h"
 
-typedef struct {
-    uint256_t a;
-    uint256_t b;  
-    uint256_t modulus;
-} MParams;
-
-void mod_add(MParams* mp, uint256_t *result);
-void mod_sub(MParams* mp, uint256_t *result);
-void mod_mul(MParams* mp, uint256_t *result);
-void mod_div(MParams* mp, uint256_t *remainder, uint256_t *result);
-void mod_exp(MParams* mp, uint256_t *result);
-void mod_inv(const uint256_t *a, const uint256_t *modulus, uint256_t *result);
+void mod_add(const uint256_t *a, const uint256_t *b, const uint256_t *modulus, uint256_t *result);
+void mod_sub(const uint256_t *a, const uint256_t *b, const uint256_t *modulus, uint256_t *result);
+void mod_mul(const uint256_t *a, const uint256_t *b, const uint256_t *modulus, uint256_t *result);
+void mod_exp(const uint256_t *base, const uint256_t *exp, const uint256_t *modulus, uint256_t *result);
+void mod_inv(const uint256_t *base, const uint256_t *modulus, uint256_t *result);
 
 #endif /* MODPLUS_H */
