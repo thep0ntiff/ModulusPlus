@@ -39,7 +39,7 @@ void uint256_clear(uint256_t *x) {
 }
 
 void uint256_copy(uint256_t *x, uint256_t *y) {
-    for (size_t i = 0; i < sizeof(x); i++) {
+    for (int i = 0; i < 4; i++) {
         x->limb[i] = y->limb[i];
     }
 }
